@@ -1,20 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modern Snake Game</title>
-<link rel="stylesheet" href="style.css">
+<title>Modern Snake</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    canvas {
+        background: #111;
+        margin-top: 10px;
+        border: 2px solid #333;
+        touch-action: none;
+    }
+    .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    button {
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
 </head>
 <body>
-<div class="game-container">
-    <canvas id="gameCanvas"></canvas>
-    <div class="controls">
-        <button onclick="changeTheme()">Change Theme</button>
-        <button onclick="changeDifficulty()">Change Difficulty</button>
-        <button onclick="toggleWrap()">Toggle Wrap</button>
-    </div>
+
+<h1 style="color:white;">🐍 Modern Snake</h1>
+<canvas id="gameCanvas" width="300" height="300"></canvas>
+
+<div style="color:white;">Puan: <span id="score">0</span></div>
+
+<div class="controls">
+    <select id="theme">
+        <option value="neon">Neon</option>
+        <option value="night">Gece</option>
+        <option value="pastel">Pastel</option>
+    </select>
+    <select id="difficulty">
+        <option value="slow">Kolay</option>
+        <option value="normal" selected>Orta</option>
+        <option value="fast">Zor</option>
+    </select>
+    <button onclick="startGame()">Başlat</button>
 </div>
-<script src="script.js"></script>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+
+let box = 15;
+let snake = [{x: 5*box, y: 5*box}];
+let direction = "RIGHT";
+let food = {};
+let score = 0;
+let game;
+let speed = 150;
+let themeColors;
+let wrap = true;
+
+const eatSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const gameOverSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+
+function setTheme(theme) {
+    if (theme === "neon") {
+        themeColors = {bg: "#000", snake: "#0ff", food: "#ff0"};
+    } else if (theme === "night") {
+        themeColors = {bg: "#111", snake: "#0f0", food: "#f00"};
+    } else {
+        themeColors = {bg: "#f8f8f8", snake: "#555", food: "#e91e63"};
+    }
+}
+
+function spawnFood() {
+    food = {
+        x: Math.floor(Math.random() * (canvas.width/box)) * box,
+        y: Math.floor(Math.random() * (canvas.height/box)) * box
+    };
+}
+
+function draw() {
+    ctx.fillStyle = themeColors.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Snake
+    ctx.fillStyle = themeColors.snake;
+    snake.forEach((part, index) => {
+        ctx.fillRect(part.x, part.y, box, box);
+    });
+
+    // Food
+    ctx.fillStyle = themeColors.food;
+    ctx.fillRect(food.x, food.y, box, box);
+
+    // Snake head
+    let headX = snake[0].x;
+    let headY = snake[0].y;
+
+    if (direction === "LEFT") headX -= box;
+    if (direction === "UP") headY -= box;
+    if (direction === "RIGHT") headX += box;
+    if (direction === "DOWN") headY += box;
+
+    // Wrap-around
+    if (wrap) {
+        if (headX >= canvas.width) headX = 0;
+        if (headX < 0) headX = canvas.width - box;
+        if (headY >= canvas.height) headY = 0;
+        if (headY < 0) headY = canvas.height - box;
+    } else {
+        if (headX < 0 || headX >= canvas.width || headY < 0 || headY >= canvas.height) {
+            clearInterval(game);
+            gameOverSound.play();
+            return;
+        }
+    }
+
+    // Food yeme
+    if (headX === food.x && headY === food.y) {
+        score++;
+        eatSound.play();
+        scoreEl.textContent = score;
+        spawnFood();
+    } else {
+        snake.pop();
+    }
+
+    let newHead = {x: headX, y: headY};
+
+    // Çarpma kontrolü
+    for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === newHead.x && snake[i].y === newHead.y) {
+            clearInterval(game);
+            gameOverSound.play();
+            return;
+        }
+    }
+
+    snake.unshift(newHead);
+}
+
+function startGame() {
+    let diff = document.getElementById("difficulty").value;
+    if (diff === "slow") speed = 200;
+    if (diff === "normal") speed = 150;
+    if (diff === "fast") speed = 80;
+
+    setTheme(document.getElementById("theme").value);
+
+    score = 0;
+    scoreEl.textContent = score;
+    snake = [{x: 5*box, y: 5*box}];
+    direction = "RIGHT";
+    spawnFood();
+    clearInterval(game);
+    game = setInterval(draw, speed);
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+});
+
+// Dokunmatik destek
+let touchStartX, touchStartY;
+canvas.addEventListener("touchstart", e => {
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+});
+canvas.addEventListener("touchend", e => {
+    const touch = e.changedTouches[0];
+    let dx = touch.clientX - touchStartX;
+    let dy = touch.clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction !== "LEFT") direction = "RIGHT";
+        else if (dx < 0 && direction !== "RIGHT") direction = "LEFT";
+    } else {
+        if (dy > 0 && direction !== "UP") direction = "DOWN";
+        else if (dy < 0 && direction !== "DOWN") direction = "UP";
+    }
+});
+</script>
+
 </body>
 </html>
