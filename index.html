@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Modern Snake — Deluxe (Başlat & Ses & Bonus)</title>
+<title>Modern Snake — Deluxe</title>
 <style>
   :root{
     --bg-1: #020617;
@@ -14,15 +14,24 @@
     --glass: rgba(255,255,255,0.03);
   }
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#e6eef8;-webkit-font-smoothing:antialiased}
-  .wrap{display:flex;flex-direction:column;height:100vh;gap:12px;padding:12px}
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: Inter, system-ui, "Segoe UI", Roboto, Arial;
+    background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
+    color: #e6eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    user-select:none;
+  }
+  .wrap{display:flex;flex-direction:column;height:100vh;gap:12px;padding:12px;}
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px}
   .brand{display:flex;gap:12px;align-items:center}
   .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent-a),var(--accent-b));display:flex;align-items:center;justify-content:center;font-weight:700;color:#021018}
   .stats{display:flex;gap:8px;align-items:center}
   .chip{background:var(--glass);padding:8px 12px;border-radius:12px;font-size:14px;color:var(--muted);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03)}
   .stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:260px}
-  canvas{border-radius:14px;box-shadow:0 20px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);touch-action:none;max-width:100%;width:100%;height:auto;max-height: calc(100vh - 240px)}
+  canvas{border-radius:14px;box-shadow:0 20px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);touch-action:none;max-width:100%;width:100%;height:auto;max-height: calc(100vh - 220px)}
   .controls-col{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
   label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
   select, button, input[type=checkbox]{font-size:13px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:var(--muted)}
@@ -32,10 +41,19 @@
   .msg{pointer-events:auto;background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));padding:18px 22px;border-radius:14px;text-align:center;min-width:240px;border:1px solid rgba(255,255,255,0.03)}
   .touch-pad{position:absolute;right:16px;bottom:16px;display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:10px;z-index:40}
   .touch-pad button{width:64px;height:64px;border-radius:50%;border:none;background: rgba(255,255,255,0.03);color:var(--muted);font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(3,8,20,0.5);backdrop-filter: blur(6px)}
-  .touch-pad button:active{transform:scale(0.97)}
-  @media (max-width:520px){ .touch-pad{grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px)} .touch-pad button{width:56px;height:56px;font-size:20px} .logo{width:40px;height:40px} }
+  .touch-pad button:active{transform:scale(0.96)}
+  @media (max-width:520px){
+    .touch-pad{grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px)}
+    .touch-pad button{width:56px;height:56px;font-size:20px}
+    .logo{width:40px;height:40px}
+  }
+  /* place directional buttons in 3x3 grid positions */
+  .btn-up{grid-column:2;grid-row:1}
+  .btn-left{grid-column:1;grid-row:2}
+  .btn-down{grid-column:2;grid-row:3}
+  .btn-right{grid-column:3;grid-row:2}
+
   .footer-hint{font-size:13px;color:var(--muted);text-align:center;padding:8px 0}
-  .small { font-size:12px; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -58,7 +76,7 @@
   </div>
 
   <div class="stage">
-    <canvas id="game" width="720" height="720" aria-label="Snake oyun alanı"></canvas>
+    <canvas id="game" width="720" height="720" aria-label="Snake game"></canvas>
 
     <div class="overlay-center" id="overlay"></div>
 
@@ -82,11 +100,6 @@
       <label style="align-items:center">
         <input type="checkbox" id="wrapToggle" checked />&nbsp;Ekran Sarma (Wrap)
       </label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="startBtn" class="btn primary">Başlat</button>
-        <button id="soundToggle" class="btn">🔊 Ses Aç</button>
-        <button id="musicToggle" class="btn">♪ Müzik Aç</button>
-      </div>
     </div>
 
     <div class="touch-pad" id="touchPad" aria-hidden="false">
@@ -97,248 +110,145 @@
     </div>
   </div>
 
-  <div class="footer-hint">Swipe veya ok tuşları ile yönlendir. Ekstra öğeler: bonus meyve (+50) ve hız gücü.</div>
+  <div class="footer-hint">Swipe veya ok tuşları ile yönlendir. Ekranın altındaki butonlar mobil için.</div>
 </div>
 
 <script>
 (() => {
   // DOM
-  const canvas = document.getElementById('game'), ctx = canvas.getContext('2d', { alpha: false });
-  const scoreChip = document.getElementById('scoreChip'), highChip = document.getElementById('highChip');
-  const overlay = document.getElementById('overlay'), pauseBtn = document.getElementById('pauseBtn');
-  const restartBtn = document.getElementById('restartBtn'), touchPad = document.getElementById('touchPad');
-  const themeSelect = document.getElementById('themeSelect'), diffSelect = document.getElementById('diffSelect');
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const scoreChip = document.getElementById('scoreChip');
+  const highChip = document.getElementById('highChip');
+  const overlay = document.getElementById('overlay');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const touchPad = document.getElementById('touchPad');
+  const themeSelect = document.getElementById('themeSelect');
+  const diffSelect = document.getElementById('diffSelect');
   const wrapToggle = document.getElementById('wrapToggle');
-  const startBtn = document.getElementById('startBtn'), soundToggle = document.getElementById('soundToggle'), musicToggle = document.getElementById('musicToggle');
 
-  // WebAudio
+  // WebAudio helpers (no files)
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   let audioCtx = null;
-  let musicState = { playing:false, masterGain:null, oscs:[], intervalId:null };
-  let audioEnabled = true;
-  function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
-
-  function playClick(){
-    if(!audioEnabled) return;
-    try {
-      const ctxA = ensureAudio();
-      const o = ctxA.createOscillator(); const g = ctxA.createGain();
-      o.type = 'square'; o.frequency.value = 900;
-      g.gain.value = 0.06;
-      o.connect(g); g.connect(ctxA.destination);
-      o.start(); o.stop(ctxA.currentTime + 0.05);
-    } catch(e) {}
-  }
-  function playPop(){
-    if(!audioEnabled) return;
-    try {
-      const ctxA = ensureAudio();
-      const o = ctxA.createOscillator(); const g = ctxA.createGain();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(520, ctxA.currentTime);
-      o.frequency.exponentialRampToValueAtTime(260, ctxA.currentTime + 0.14);
-      g.gain.setValueAtTime(0.07, ctxA.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctxA.currentTime + 0.15);
-      o.connect(g); g.connect(ctxA.destination);
-      o.start(); o.stop(ctxA.currentTime + 0.16);
-    } catch(e) {}
-  }
-  function playFail(){
-    if(!audioEnabled) return;
-    try {
-      const ctxA = ensureAudio();
-      const o = ctxA.createOscillator(); const g = ctxA.createGain();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(160, ctxA.currentTime);
-      o.frequency.exponentialRampToValueAtTime(80, ctxA.currentTime + 0.35);
-      g.gain.setValueAtTime(0.12, ctxA.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctxA.currentTime + 0.4);
-      o.connect(g); g.connect(ctxA.destination);
-      o.start(); o.stop(ctxA.currentTime + 0.45);
-    } catch(e) {}
-  }
-
-  // simple looping "music" via two oscillators + periodic melody changes
-  function startMusic(){
-    if(musicState.playing || !audioEnabled) return;
-    const ctxA = ensureAudio();
-    const master = ctxA.createGain(); master.gain.value = 0.02; master.connect(ctxA.destination);
-    const osc1 = ctxA.createOscillator(), g1 = ctxA.createGain();
-    const osc2 = ctxA.createOscillator(), g2 = ctxA.createGain();
-    osc1.type = 'sine'; osc2.type = 'triangle';
-    g1.gain.value = 0.6; g2.gain.value = 0.9;
-    osc1.connect(g1); g1.connect(master);
-    osc2.connect(g2); g2.connect(master);
-    osc1.start(); osc2.start();
-    musicState.masterGain = master;
-    musicState.oscs = [osc1, osc2];
-    let seq = [440, 0, 523, 392, 440, 0, 660, 523];
-    let idx = 0;
-    musicState.intervalId = setInterval(()=>{
-      const f = seq[idx % seq.length] || 220;
-      try {
-        osc1.frequency.setValueAtTime(f || 220, ctxA.currentTime);
-        osc2.frequency.setValueAtTime((f?f*0.5:110), ctxA.currentTime);
-      } catch(e){}
-      idx++;
-    }, 400);
-    musicState.playing = true;
-  }
-  function stopMusic(){
-    if(!musicState.playing) return;
-    try {
-      clearInterval(musicState.intervalId);
-      musicState.oscs.forEach(o => { try{o.stop();}catch(e){} });
-      try { musicState.masterGain.disconnect(); } catch(e){}
-    } catch(e){}
-    musicState.playing = false; musicState.oscs = []; musicState.masterGain = null; musicState.intervalId = null;
-  }
+  function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
+  function playClick(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='square'; o.frequency.value = 900; g.gain.value = 0.06; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05);}catch(e){}}
+  function playPop(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(520,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(260,audioCtx.currentTime+0.14); g.gain.setValueAtTime(0.08,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.15); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.16);}catch(e){}}
+  function playFail(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(160,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(70,audioCtx.currentTime+0.4); g.gain.setValueAtTime(0.12,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.45); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.46);}catch(e){}}
 
   // Themes & difficulties
-  const baseConfig = { cols:24, rows:24, cellMin:12, initialLength:4 };
   const themes = {
-    night: { bg1:'#0f1724', bg2:'#071426', snakeA:'#7b61ff', snakeB:'#00e6a8', apple:['#ff7a64','#ff5040'] },
-    neon:  { bg1:'#020617', bg2:'#06152a', snakeA:'#00ffb3', snakeB:'#ff00fb', apple:['#fff000','#ff5500'] },
-    pastel:{ bg1:'#f6f8ff', bg2:'#eaf1ff', snakeA:'#9bb4ff', snakeB:'#a6ffc8', apple:['#ff9bb3','#ff6f91'] }
+    night: { bg1:'#0f1724', bg2:'#071426', snakeA:'#7b61ff', snakeB:'#00e6a8', apple1:'#ff7a64', apple2:'#ff5040' },
+    neon:  { bg1:'#020617', bg2:'#06152a', snakeA:'#00ffb3', snakeB:'#ff00fb', apple1:'#fff000', apple2:'#ff5500' },
+    pastel:{ bg1:'#f6f8ff', bg2:'#eaf1ff', snakeA:'#9bb4ff', snakeB:'#a6ffc8', apple1:'#ff9bb3', apple2:'#ff6f91' }
   };
   const difficulties = {
-    easy: { baseSpeed:5, speedInc:0.18, initialLength:5 },
-    normal: { baseSpeed:8, speedInc:0.3, initialLength:4 },
-    hard: { baseSpeed:12, speedInc:0.45, initialLength:3 }
+    easy: { baseSpeed:5, inc:0.18, initialLength:5 },
+    normal:{ baseSpeed:8, inc:0.3, initialLength:4 },
+    hard: { baseSpeed:12, inc:0.45, initialLength:3 }
   };
 
-  // State variables
-  let config = { ...baseConfig };
-  let grid = { ...config, cell: 20, width:0, height:0 };
-  let snake = [], dir = {x:1,y:0}, nextDir = null, apple = null, bonus = null, power = null;
-  let score = 0, high = parseInt(localStorage.getItem('modernSnakeHigh') || '0', 10);
-  let speed = difficulties.normal.baseSpeed, speedInc = difficulties.normal.speedInc, moveInterval = 1000/speed;
-  let running = false, lastTick = 0, accumulator = 0, gameOver = false;
+  // State
+  const gridCols = 24, gridRows = 24;
   let deviceRatio = window.devicePixelRatio || 1;
+  let grid = { cols:gridCols, rows:gridRows, cell: Math.floor(canvas.width / gridCols), width:0, height:0 };
+  let snake = [], dir = {x:1,y:0}, nextDir = null, apple = null;
+  let score = 0, high = parseInt(localStorage.getItem('modernSnakeHigh')||'0',10);
+  let speed = difficulties.normal.baseSpeed, speedInc = difficulties.normal.inc, moveInterval = 1000/speed;
+  let running = true, last = 0, acc = 0, gameOver = false;
+  let wrapEnabled = true;
   let currentTheme = 'neon';
 
   highChip.textContent = 'En Yüksek: ' + high;
-  scoreChip.textContent = 'Puan: 0';
-  soundToggle.textContent = audioEnabled ? '🔊 Ses Aç' : '🔇 Ses Kapalı';
-  musicToggle.textContent = musicState.playing ? '♪ Müzik Kapat' : '♪ Müzik Aç';
 
   function resizeCanvas(){
-    const availW = Math.max(300, window.innerWidth - 48);
-    const availH = Math.max(300, window.innerHeight - 260);
-    const useW = Math.min(availW, Math.max(availH, availW));
-    const useH = Math.min(availH, useW * 1.2);
-    let size = Math.min(useW, useH);
-    size = Math.max(280, Math.min(900, Math.floor(size)));
-    const cell = Math.floor(size / grid.cols);
-    grid.cell = Math.max(cell, config.cellMin);
-    grid.width = grid.cell * grid.cols; grid.height = grid.cell * grid.rows;
+    const maxW = Math.min(window.innerWidth - 48, window.innerHeight*0.9);
+    const size = Math.max(280, Math.min(800, Math.floor(maxW)));
+    canvas.style.width = size+'px'; canvas.style.height = size+'px';
     deviceRatio = window.devicePixelRatio || 1;
-    canvas.style.width = grid.width + 'px'; canvas.style.height = grid.height + 'px';
-    canvas.width = Math.floor(grid.width * deviceRatio); canvas.height = Math.floor(grid.height * deviceRatio);
+    canvas.width = Math.floor(size * deviceRatio);
+    canvas.height = Math.floor(size * deviceRatio);
     ctx.setTransform(deviceRatio,0,0,deviceRatio,0,0);
+    grid.cell = Math.floor(size / grid.cols);
+    grid.width = grid.cell * grid.cols;
+    grid.height = grid.cell * grid.rows;
+    canvas.style.width = grid.width + 'px';
+    canvas.style.height = grid.height + 'px';
     draw();
   }
   window.addEventListener('resize', resizeCanvas);
 
-  function rndInt(min,max){ return Math.floor(Math.random()*(max-min+1)) + min; }
+  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
   function placeApple(){
-    let attempts = 0;
-    while(attempts++ < 2000){
-      const x = rndInt(0,grid.cols-1), y = rndInt(0,grid.rows-1);
-      if(!snake.some(p=>p.x===x && p.y===y) && (!bonus || bonus.x!==x || bonus.y!==y) && (!power || power.x!==x || power.y!==y)){
-        apple = { x, y }; return;
-      }
+    let tries=0;
+    while(tries++ < 2000){
+      const x = rnd(0,grid.cols-1), y = rnd(0,grid.rows-1);
+      if(!snake.some(p => p.x===x && p.y===y)){ apple={x,y}; return; }
     }
     apple = {x:0,y:0};
-  }
-
-  function maybeSpawnBonusOrPower(){
-    // 20% chance spawn bonus (+50); 10% chance spawn power (slow/boost)
-    if(bonus || power) return;
-    const r = Math.random();
-    if(r < 0.20){
-      // bonus
-      let attempts=0;
-      while(attempts++<1000){
-        const x=rndInt(0,grid.cols-1), y=rndInt(0,grid.rows-1);
-        if(!snake.some(p=>p.x===x&&p.y===y) && !(apple.x===x&&apple.y===y)){ bonus={x,y,ttl:10000}; setTimeout(()=>{ if(bonus && bonus.x===x && bonus.y===y) bonus=null; },10000); break; }
-      }
-    } else if(r < 0.30){
-      // power: type 'slow' or 'fast'
-      const type = Math.random() < 0.5 ? 'slow' : 'fast';
-      let attempts=0;
-      while(attempts++<1000){
-        const x=rndInt(0,grid.cols-1), y=rndInt(0,grid.rows-1);
-        if(!snake.some(p=>p.x===x&&p.y===y) && !(apple.x===x&&apple.y===y)){ power={x,y,type,ttl:12000}; setTimeout(()=>{ if(power && power.x===x && power.y===y) power=null; },12000); break; }
-      }
-    }
-  }
-
-  function applyTheme(name){
-    currentTheme = name;
-    const t = themes[name];
-    document.documentElement.style.setProperty('--bg-1', t.bg1);
-    document.documentElement.style.setProperty('--bg-2', t.bg2);
-    document.documentElement.style.setProperty('--accent-a', t.snakeA);
-    document.documentElement.style.setProperty('--accent-b', t.snakeB);
-    draw();
   }
 
   function resetGame(){
     snake = [];
     const sx = Math.floor(grid.cols/2), sy = Math.floor(grid.rows/2);
     const d = difficulties[diffSelect.value] || difficulties.normal;
-    speed = d.baseSpeed; speedInc = d.speedInc;
-    for(let i=0;i<d.initialLength;i++) snake.push({x:sx-i, y:sy});
-    dir = {x:1,y:0}; nextDir = null; score = 0; moveInterval = 1000/speed; running = false; gameOver=false; bonus = null; power=null;
-    scoreChip.textContent = 'Puan: ' + score;
-    placeApple();
-    updateOverlay('');
+    speed = d.baseSpeed; speedInc = d.inc;
+    const initLen = d.initialLength;
+    for(let i=0;i<initLen;i++) snake.push({x: sx-i, y: sy});
+    dir = {x:1,y:0}; nextDir = null;
+    score = 0; moveInterval = 1000/speed; running = true; gameOver=false;
+    placeApple(); scoreChip.textContent = 'Puan: ' + score;
+    updateTheme(themeSelect.value);
+    startLoop();
   }
 
-  // draw
-  function drawGrid(){
-    ctx.clearRect(0,0,grid.width,grid.height);
-    const t = themes[currentTheme];
-    const g = ctx.createLinearGradient(0,0,0,grid.height);
-    g.addColorStop(0, t.bg1); g.addColorStop(1, t.bg2);
-    ctx.fillStyle = g; roundRect(ctx,0,0,grid.width,grid.height,12); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.02)'; ctx.lineWidth=1;
-    for(let x=0;x<=grid.width;x+=grid.cell){ ctx.beginPath(); ctx.moveTo(x+0.5,0); ctx.lineTo(x+0.5,grid.height); ctx.stroke(); }
-    for(let y=0;y<=grid.height;y+=grid.cell){ ctx.beginPath(); ctx.moveTo(0,y+0.5); ctx.lineTo(grid.width,y+0.5); ctx.stroke(); }
+  function updateTheme(t){
+    currentTheme = t;
+    const th = themes[t];
+    document.documentElement.style.setProperty('--bg-1', th.bg1);
+    document.documentElement.style.setProperty('--bg-2', th.bg2);
+    document.documentElement.style.setProperty('--accent-a', th.snakeA);
+    document.documentElement.style.setProperty('--accent-b', th.snakeB);
+    draw();
   }
+
+  // Drawing
+  function drawGrid(){
+    const c = ctx;
+    c.clearRect(0,0,grid.width,grid.height);
+    const th = themes[currentTheme];
+    const g = c.createLinearGradient(0,0,0,grid.height);
+    g.addColorStop(0, th.bg1);
+    g.addColorStop(1, th.bg2);
+    c.fillStyle = g;
+    roundRect(c, 0, 0, grid.width, grid.height, 12); c.fill();
+
+    // faint grid lines
+    c.strokeStyle = 'rgba(255,255,255,0.02)';
+    c.lineWidth = 1;
+    for(let x=0;x<=grid.width;x+=grid.cell){ c.beginPath(); c.moveTo(x+0.5,0); c.lineTo(x+0.5,grid.height); c.stroke(); }
+    for(let y=0;y<=grid.height;y+=grid.cell){ c.beginPath(); c.moveTo(0,y+0.5); c.lineTo(grid.width,y+0.5); c.stroke(); }
+  }
+
   function drawApple(){
     if(!apple) return;
-    const s = grid.cell; const x = apple.x*s, y = apple.y*s; const cx=x+s/2, cy=y+s/2, r=s*0.36;
-    const [c1,c2] = themes[currentTheme].apple;
-    const g = ctx.createRadialGradient(cx,cy,r*0.1,cx,cy,r*1.2); g.addColorStop(0,c1); g.addColorStop(1,hexToRgba(c2,0.12));
-    ctx.fillStyle = g; circle(ctx,cx,cy,r); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; circle(ctx,cx-r*0.35,cy-r*0.35,r*0.12); ctx.fill();
+    const s = grid.cell;
+    const x = apple.x * s, y = apple.y * s;
+    const cx = x + s/2, cy = y + s/2, r = s*0.36;
+    const th = themes[currentTheme];
+    const g = ctx.createRadialGradient(cx,cy,r*0.1,cx,cy,r*1.2);
+    g.addColorStop(0, th.apple1); g.addColorStop(1, th.apple2);
+    ctx.fillStyle = g; circle(ctx, cx, cy, r); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'; circle(ctx, cx - r*0.35, cy - r*0.35, r*0.12); ctx.fill();
   }
-  function drawBonus(){
-    if(!bonus) return;
-    const s=grid.cell; const x=bonus.x*s, y=bonus.y*s, cx=x+s/2, cy=y+s/2;
-    // diamond
-    ctx.fillStyle = 'rgba(255,215,64,0.98)';
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - s*0.28);
-    ctx.lineTo(cx + s*0.22, cy);
-    ctx.lineTo(cx, cy + s*0.28);
-    ctx.lineTo(cx - s*0.22, cy);
-    ctx.closePath(); ctx.fill();
-  }
-  function drawPower(){
-    if(!power) return;
-    const s=grid.cell; const x=power.x*s, y=power.y*s, cx=x+s/2, cy=y+s/2;
-    ctx.fillStyle = power.type === 'slow' ? 'rgba(80,160,255,0.95)' : 'rgba(255,80,120,0.95)';
-    ctx.beginPath(); ctx.moveTo(cx - s*0.2, cy - s*0.15); ctx.lineTo(cx + s*0.2, cy - s*0.15); ctx.lineTo(cx + s*0.1, cy + s*0.25); ctx.lineTo(cx - s*0.1, cy + s*0.25); ctx.closePath(); ctx.fill();
-  }
+
   function drawSnake(){
     if(!snake.length) return;
     const s = grid.cell;
     for(let i=snake.length-1;i>=0;i--){
-      const p = snake[i]; const px=p.x*s, py=p.y*s;
+      const p = snake[i];
+      const px = p.x * s, py = p.y * s;
       const t = 1 - (i / snake.length);
       const color = lerpColor(themes[currentTheme].snakeA, themes[currentTheme].snakeB, t);
       roundRect(ctx, px+2, py+2, s-4, s-4, 6);
@@ -347,165 +257,149 @@
     // head sheen
     const head = snake[0];
     ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    circle(ctx, head.x*grid.cell + grid.cell/2 - grid.cell*0.08, head.y*grid.cell + grid.cell/2 - grid.cell*0.18, grid.cell*0.12); ctx.fill();
+    circle(ctx, head.x*s + s/2 - s*0.08, head.y*s + s/2 - s*0.18, s*0.12); ctx.fill();
   }
-  function drawGlow(){ const g = ctx.createRadialGradient(0,0,20, grid.width*0.6, grid.height*0.4, Math.max(grid.width,grid.height)); g.addColorStop(0, hexToRgba(themes[currentTheme].snakeB, 0.06)); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,grid.width,grid.height); }
-  function draw(){ drawGrid(); drawApple(); drawBonus(); drawPower(); drawSnake(); drawGlow(); }
 
+  function drawGlow(){
+    const g = ctx.createRadialGradient(0,0,30, grid.width*0.6, grid.height*0.4, Math.max(grid.width,grid.height));
+    g.addColorStop(0, hexToRgba(themes[currentTheme].snakeB, 0.06));
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,grid.width,grid.height);
+  }
+
+  function draw(){
+    drawGrid(); drawApple(); drawSnake(); drawGlow();
+  }
+
+  // helpers
   function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
   function circle(c,x,y,r){ c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.closePath(); }
   function lerpColor(a,b,t){ const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16); const ar=(pa>>16)&255,ag=(pa>>8)&255,ab=pa&255; const br=(pb>>16)&255,bg=(pb>>8)&255,bb=pb&255; const rr=Math.round(ar+(br-ar)*t), rg=Math.round(ag+(bg-ag)*t), rb=Math.round(ab+(bb-ab)*t); return `rgb(${rr},${rg},${rb})`; }
-  function hexToRgba(hex,a){ if(hex.startsWith('#')) hex=hex.slice(1); if(hex.length===3) hex=hex.split('').map(c=>c+c).join(''); const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+  function hexToRgba(hex, a){ if(hex.startsWith('#')) hex = hex.slice(1); if(hex.length===3) hex = hex.split('').map(c=>c+c).join(''); const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
 
   // game logic
   function step(){
     if(gameOver || !running) return;
     if(nextDir){ if(!(nextDir.x === -dir.x && nextDir.y === -dir.y)) dir = nextDir; nextDir = null; }
-    let nx = snake[0].x + dir.x, ny = snake[0].y + dir.y;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
     if(wrapToggle.checked){
-      if(nx < 0) nx = grid.cols - 1;
-      if(nx >= grid.cols) nx = 0;
-      if(ny < 0) ny = grid.rows - 1;
-      if(ny >= grid.rows) ny = 0;
+      if(head.x < 0) head.x = grid.cols - 1;
+      if(head.x >= grid.cols) head.x = 0;
+      if(head.y < 0) head.y = grid.rows - 1;
+      if(head.y >= grid.rows) head.y = 0;
     } else {
-      if(nx < 0 || nx >= grid.cols || ny < 0 || ny >= grid.rows) return doGameOver();
+      if(head.x < 0 || head.x >= grid.cols || head.y < 0 || head.y >= grid.rows){ return endGame(); }
     }
-    if(snake.some(s => s.x===nx && s.y===ny)) return doGameOver();
-    snake.unshift({x:nx,y:ny});
-    // apple
-    if(apple && nx===apple.x && ny===apple.y){
+    if(snake.some(p => p.x === head.x && p.y === head.y)) return endGame();
+    snake.unshift(head);
+    if(apple && head.x === apple.x && head.y === apple.y){
       score += 10; playPop();
-      scoreChip.textContent = 'Puan: ' + score;
-      // speed increase
       speed = Math.min(60, speed + speedInc);
       moveInterval = 1000 / speed;
       placeApple();
-      maybeSpawnBonusOrPower();
+      scoreChip.textContent = 'Puan: ' + score;
+      if(score > high){ high = score; localStorage.setItem('modernSnakeHigh', String(high)); highChip.textContent = 'En Yüksek: ' + high; }
     } else {
       snake.pop();
     }
-    // bonus
-    if(bonus && nx===bonus.x && ny===bonus.y){
-      score += 50; bonus = null; playPop(); scoreChip.textContent = 'Puan: ' + score;
-      // small speed change: slow slightly (reward)
-      speed = Math.max(3, speed - 1);
-      moveInterval = 1000 / speed;
-    }
-    // power
-    if(power && nx===power.x && ny===power.y){
-      const t = power.type;
-      power = null;
-      if(t==='slow'){ // slow effect: decrease speed temporarily
-        const old = speed; speed = Math.max(3, speed * 0.6); moveInterval = 1000/speed;
-        setTimeout(()=>{ speed = old; moveInterval = 1000/speed; }, 6000);
-      } else {
-        const old = speed; speed = Math.min(80, speed * 1.4); moveInterval = 1000/speed;
-        setTimeout(()=>{ speed = old; moveInterval = 1000/speed; }, 6000);
-      }
-      playClick();
-    }
   }
 
-  function doGameOver(){
+  function endGame(){
     gameOver = true; running = false; playFail();
-    updateOverlay(`<div class="msg"><h3>Oyun Bitti</h3><p>Puanın: ${score}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px;"><button class="btn primary" id="overlayRestart">Tekrar Oyna</button></div></div>`);
-    setTimeout(()=>{ const r=document.getElementById('overlayRestart'); if(r) r.addEventListener('click', ()=>{ resetGame(); startLoop(); updateOverlay(''); playClick(); }); },10);
+    updateOverlay(`<div class="msg"><h3>Oyun Bitti</h3><p>Puanın: ${score}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px;"><button class="btn" id="overlayRestart">Tekrar Oyna</button></div></div>`);
+    setTimeout(()=>{ const r=document.getElementById('overlayRestart'); if(r) r.addEventListener('click', ()=>{ resetGame(); startLoop(); updateOverlay(''); }); },10);
   }
 
   function updateOverlay(html){ overlay.innerHTML = html || ''; }
 
-  // main loop (rAF + accumulator)
+  // loop
   function loop(ts){
-    if(!lastTick) lastTick = ts;
-    const delta = ts - lastTick; lastTick = ts; accumulator += delta;
-    while(accumulator >= moveInterval){ step(); accumulator -= moveInterval; }
+    if(!last) last = ts;
+    const delta = ts - last; last = ts; acc += delta;
+    while(acc >= moveInterval){ step(); acc -= moveInterval; }
     draw();
     if(!gameOver && running) requestAnimationFrame(loop);
   }
-  function startLoop(){ lastTick = 0; accumulator = 0; if(!gameOver) requestAnimationFrame(loop); running = true; }
+  function startLoop(){ last = 0; acc = 0; if(!gameOver) requestAnimationFrame(loop); running = true; }
 
-  // Input: keyboard
+  // input: keyboard (arrow keys)
   window.addEventListener('keydown', e=>{
     if(gameOver) return;
     if(e.repeat) return;
-    if(e.key === 'ArrowUp' || e.key === 'w') { nextDir = {x:0,y:-1}; playClick(); }
-    if(e.key === 'ArrowDown' || e.key === 's') { nextDir = {x:0,y:1}; playClick(); }
-    if(e.key === 'ArrowLeft' || e.key === 'a') { nextDir = {x:-1,y:0}; playClick(); }
-    if(e.key === 'ArrowRight' || e.key === 'd') { nextDir = {x:1,y:0}; playClick(); }
-    if(e.key === ' ' ) togglePause();
+    const k = e.key;
+    if(k === 'ArrowUp' || k === 'w'){ nextDir = {x:0,y:-1}; playClick(); }
+    if(k === 'ArrowDown' || k === 's'){ nextDir = {x:0,y:1}; playClick(); }
+    if(k === 'ArrowLeft' || k === 'a'){ nextDir = {x:-1,y:0}; playClick(); }
+    if(k === 'ArrowRight' || k === 'd'){ nextDir = {x:1,y:0}; playClick(); }
+    if(k === ' '){ togglePause(); }
   });
+
+  // touch swipe detection on canvas
+  let touchStart = null, touchId = null;
+  const swipeThreshold = 20;
+  canvas.addEventListener('touchstart', ev => {
+    const t = ev.changedTouches[0];
+    touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+    touchId = t.identifier;
+  }, { passive:true });
+  canvas.addEventListener('touchmove', ev => { ev.preventDefault(); }, { passive:false });
+  canvas.addEventListener('touchend', ev => {
+    const t = Array.from(ev.changedTouches).find(tt=>tt.identifier===touchId) || ev.changedTouches[0];
+    if(!t || !touchStart) return;
+    const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
+    if(Math.abs(dx) < swipeThreshold && Math.abs(dy) < swipeThreshold){
+      togglePause();
+    } else {
+      if(Math.abs(dx) > Math.abs(dy)){
+        setDir(dx>0 ? {x:1,y:0} : {x:-1,y:0});
+      } else {
+        setDir(dy>0 ? {x:0,y:1} : {x:0,y:-1});
+      }
+    }
+    touchStart = null; touchId = null;
+  }, { passive:true });
 
   function setDir(d){ if(d.x === -dir.x && d.y === -dir.y) return; nextDir = d; }
 
-  // Touch swipe detection
-  let touchStart = null, touchId = null;
-  const swipeThreshold = 20;
-  canvas.addEventListener('touchstart', ev=>{ const t = ev.changedTouches[0]; touchStart = {x:t.clientX,y:t.clientY,time:Date.now()}; touchId = t.identifier; }, { passive:true });
-  canvas.addEventListener('touchmove', ev=>{ ev.preventDefault(); }, { passive:false });
-  canvas.addEventListener('touchend', ev=>{ const t = Array.from(ev.changedTouches).find(tt=>tt.identifier===touchId) || ev.changedTouches[0]; if(!t||!touchStart) return; const dx=t.clientX-touchStart.x, dy=t.clientY-touchStart.y; if(Math.abs(dx)<swipeThreshold && Math.abs(dy)<swipeThreshold){ togglePause(); } else { if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?{x:1,y:0}:{x:-1,y:0}); else setDir(dy>0?{x:0,y:1}:{x:0,y:-1}); } touchStart=null; touchId=null; }, { passive:true });
-
-  // on-screen buttons
+  // on-screen buttons (touch / mouse)
   touchPad.addEventListener('pointerdown', e=>{
-    const btn = e.target.closest('button[data-dir]'); if(!btn) return;
-    const d = btn.dataset.dir; if(d==='up') setDir({x:0,y:-1}); if(d==='down') setDir({x:0,y:1}); if(d==='left') setDir({x:-1,y:0}); if(d==='right') setDir({x:1,y:0});
+    const btn = e.target.closest('button[data-dir]');
+    if(!btn) return;
+    const d = btn.dataset.dir;
+    if(d === 'up') setDir({x:0,y:-1});
+    if(d === 'down') setDir({x:0,y:1});
+    if(d === 'left') setDir({x:-1,y:0});
+    if(d === 'right') setDir({x:1,y:0});
     try{ btn.setPointerCapture(e.pointerId); btn.addEventListener('pointerup', ()=>{ try{btn.releasePointerCapture(e.pointerId);}catch(_){} }, { once:true }); }catch(e){}
     playClick();
   });
 
-  // pause / restart
-  function togglePause(){ if(gameOver) return; running = !running; pauseBtn.textContent = running ? 'Duraklat' : 'Devam Et'; if(running){ lastTick = 0; requestAnimationFrame(loop); updateOverlay(''); } else { updateOverlay(`<div class="msg"><h4>Duraklatıldı</h4><p>Devam etmek için 'Devam Et' butonuna veya ekrana dokun.</p></div>`); } }
+  // UI
   pauseBtn.addEventListener('click', ()=>{ playClick(); togglePause(); });
   restartBtn.addEventListener('click', ()=>{ playClick(); resetGame(); startLoop(); updateOverlay(''); pauseBtn.textContent='Duraklat'; });
 
-  // UI interactions
-  themeSelect.addEventListener('change', (e)=>{ playClick(); applyTheme(e.target.value); });
+  themeSelect.addEventListener('change', (e)=>{ playClick(); updateTheme(e.target.value); });
   diffSelect.addEventListener('change', (e)=>{ playClick(); resetGame(); });
-  wrapToggle.addEventListener('change', (e)=>{ playClick(); });
+  wrapToggle.addEventListener('change', ()=>{ playClick(); });
 
-  // Start / Sound / Music buttons
-  startBtn.addEventListener('click', ()=>{
-    // resume audio context on first user action
-    try{ if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){}
-    playClick();
-    resetGame();
-    startLoop();
-    pauseBtn.textContent = 'Duraklat';
-    // optional: start music if user wants
-    if(musicState.playing === false && musicToggle.dataset.wanted === 'true'){
-      startMusic(); musicToggle.textContent = '♪ Müzik Kapat';
-    }
-  });
+  function togglePause(){ if(gameOver) return; running = !running; pauseBtn.textContent = running ? 'Duraklat' : 'Devam Et'; if(running) { last = 0; requestAnimationFrame(loop); updateOverlay(''); } else { updateOverlay(`<div class="msg"><h4>Duraklatıldı</h4><p>Devam etmek için butona bas veya ekrana dokun.</p></div>`); } }
 
-  soundToggle.addEventListener('click', ()=>{
-    audioEnabled = !audioEnabled;
-    soundToggle.textContent = audioEnabled ? '🔊 Ses Aç' : '🔇 Ses Kapalı';
-    if(!audioEnabled){ stopMusic(); musicToggle.textContent = '♪ Müzik Aç'; }
-    playClick();
-  });
-
-  musicToggle.addEventListener('click', ()=>{
-    // toggle requested music state
-    if(!audioEnabled){ musicToggle.dataset.wanted = 'true'; alert('Ses kapalı — önce Ses Aç butonuna basın.'); return; }
-    if(!musicState.playing){ startMusic(); musicToggle.textContent = '♪ Müzik Kapat'; musicToggle.dataset.wanted = 'true'; }
-    else { stopMusic(); musicToggle.textContent = '♪ Müzik Aç'; musicToggle.dataset.wanted = 'false'; }
-    playClick();
-  });
-
-  // small helpers
-  function updateTheme(t){ applyTheme(t); }
-  function resetGameAndStart(){ resetGame(); startLoop(); }
+  // init helpers
+  function resetIntervalFromSpeed(){ moveInterval = 1000 / speed; }
 
   // init
   function init(){
     resizeCanvas();
-    applyTheme(currentTheme);
+    updateTheme(themeSelect.value);
     resetGame();
-    // show initial overlay with quick help
-    updateOverlay(`<div class="msg"><h3>Modern Snake</h3><p>Başlamak için <strong>Başlat</strong> butonuna tıkla.<br/>Mobilde swipe ya da butonlar ile yönlendir.</p></div>`);
+    startLoop();
   }
 
-  window.addEventListener('load', init);
-  window.ModernSnake = { resetGame, startMusic, stopMusic };
+  // expose for debugging
+  window.ModernSnake = { resetGame, step };
+
+  // Start
+  init();
 
 })();
 </script>
