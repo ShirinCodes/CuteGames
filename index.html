@@ -1,407 +1,872 @@
-<!doctype html>
+
+
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Modern Snake — Deluxe</title>
-<style>
-  :root{
-    --bg-1: #020617;
-    --bg-2: #06152a;
-    --accent-a: #00ffb3;
-    --accent-b: #ff00fb;
-    --muted: rgba(255,255,255,0.85);
-    --glass: rgba(255,255,255,0.03);
-  }
-  *{box-sizing:border-box}
-  html,body{
-    height:100%;
-    margin:0;
-    font-family: Inter, system-ui, "Segoe UI", Roboto, Arial;
-    background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
-    color: #e6eef8;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    user-select:none;
-  }
-  .wrap{display:flex;flex-direction:column;height:100vh;gap:12px;padding:12px;}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px}
-  .brand{display:flex;gap:12px;align-items:center}
-  .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent-a),var(--accent-b));display:flex;align-items:center;justify-content:center;font-weight:700;color:#021018}
-  .stats{display:flex;gap:8px;align-items:center}
-  .chip{background:var(--glass);padding:8px 12px;border-radius:12px;font-size:14px;color:var(--muted);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03)}
-  .stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:260px}
-  canvas{border-radius:14px;box-shadow:0 20px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);touch-action:none;max-width:100%;width:100%;height:auto;max-height: calc(100vh - 220px)}
-  .controls-col{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-  label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-  select, button, input[type=checkbox]{font-size:13px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:var(--muted)}
-  .btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer}
-  .btn.primary{background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:#021018;font-weight:700}
-  .overlay-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-  .msg{pointer-events:auto;background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));padding:18px 22px;border-radius:14px;text-align:center;min-width:240px;border:1px solid rgba(255,255,255,0.03)}
-  .touch-pad{position:absolute;right:16px;bottom:16px;display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:10px;z-index:40}
-  .touch-pad button{width:64px;height:64px;border-radius:50%;border:none;background: rgba(255,255,255,0.03);color:var(--muted);font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(3,8,20,0.5);backdrop-filter: blur(6px)}
-  .touch-pad button:active{transform:scale(0.96)}
-  @media (max-width:520px){
-    .touch-pad{grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px)}
-    .touch-pad button{width:56px;height:56px;font-size:20px}
-    .logo{width:40px;height:40px}
-  }
-  /* place directional buttons in 3x3 grid positions */
-  .btn-up{grid-column:2;grid-row:1}
-  .btn-left{grid-column:1;grid-row:2}
-  .btn-down{grid-column:2;grid-row:3}
-  .btn-right{grid-column:3;grid-row:2}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Snake Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  .footer-hint{font-size:13px;color:var(--muted);text-align:center;padding:8px 0}
-</style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 360px;
+            background: #2a2a2a;
+            border-radius: 15px;
+            border: 3px solid #4a4a4a;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 12px;
+            max-width: 220px;
+            margin: 0 auto 20px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            user-select: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .up { grid-column: 2; grid-row: 1; }
+        .left { grid-column: 1; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 3; }
+
+        .game-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .setting-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4ecdc4;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(25px);
+        }
+
+        .bonus-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .game-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.6);
+        }
+
+        .game-btn.pause {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            box-shadow: 0 4px 15px rgba(254, 202, 87, 0.4);
+        }
+
+        .game-btn.pause:hover {
+            box-shadow: 0 6px 20px rgba(254, 202, 87, 0.6);
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .game-over h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .game-canvas {
+                height: 300px;
+            }
+            
+            .controls {
+                max-width: 180px;
+                gap: 8px;
+            }
+            
+            .control-btn {
+                padding: 15px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">S</div>
-      <div>
-        <div style="font-weight:800">Modern Snake</div>
-        <div style="font-size:12px;color:var(--muted)">Neon • Dokunmatik • WebAudio</div>
-      </div>
+    <div class="game-container">
+        <div class="game-buttons">
+            <button class="game-btn" onclick="startGame()">Başla</button>
+            <button class="game-btn pause" onclick="togglePause()">Duraklat</button>
+            <button class="game-btn" onclick="resetGame()">Yeniden</button>
+        </div>
+
+        <div class="game-header">
+            <h1 class="game-title">🐍 SNAKE</h1>
+            <div class="score-board">
+                <div>Skor: <span id="score">0</span></div>
+                <div>En Yüksek: <span id="highScore">0</span></div>
+            </div>
+            <div class="bonus-info">
+                <div>🍇 Bonus: <span id="bonusCount">0</span></div>
+                <div>⚡ Hız: <span id="speedCount">0</span></div>
+            </div>
+        </div>
+
+        <div class="settings-panel">
+            <div class="setting-item">
+                <span>Wrap-around (Duvardan Geçme)</span>
+                <div class="toggle-switch" id="wrapToggle" onclick="toggleWrapAround()"></div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" class="game-canvas"></canvas>
+
+        <div class="controls">
+            <button class="control-btn up" onclick="changeDirection('up')">↑</button>
+            <button class="control-btn left" onclick="changeDirection('left')">←</button>
+            <button class="control-btn right" onclick="changeDirection('right')">→</button>
+            <button class="control-btn down" onclick="changeDirection('down')">↓</button>
+        </div>
+
+        <div class="instructions">
+            <p>🎮 Ok tuşları veya swipe hareketleri ile yılanı kontrol edin</p>
+            <p>🍎 Kırmızı elmalar: +10 puan | 🍇 Mor üzümler: +25 puan</p>
+            <p>⚡ Sarı hız objesi: 5 saniye süper hız!</p>
+            <p>🔄 Wrap-around: Duvarlardan geçme özelliği</p>
+        </div>
     </div>
 
-    <div class="stats">
-      <div class="chip" id="scoreChip">Puan: 0</div>
-      <div class="chip" id="highChip">En Yüksek: 0</div>
-      <button class="btn" id="pauseBtn">Duraklat</button>
-      <button class="btn primary" id="restartBtn">Yeniden Başla</button>
-    </div>
-  </div>
-
-  <div class="stage">
-    <canvas id="game" width="720" height="720" aria-label="Snake game"></canvas>
-
-    <div class="overlay-center" id="overlay"></div>
-
-    <div style="position:absolute;right:18px;top:18px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-      <label>
-        Tema:
-        <select id="themeSelect">
-          <option value="night">Gece</option>
-          <option value="neon">Neon</option>
-          <option value="pastel">Pastel</option>
-        </select>
-      </label>
-      <label>
-        Zorluk:
-        <select id="diffSelect">
-          <option value="easy">Kolay</option>
-          <option value="normal" selected>Normal</option>
-          <option value="hard">Zor</option>
-        </select>
-      </label>
-      <label style="align-items:center">
-        <input type="checkbox" id="wrapToggle" checked />&nbsp;Ekran Sarma (Wrap)
-      </label>
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <h2>Oyun Bitti! 💀</h2>
+            <div class="final-score">
+                Final Skorunuz: <span id="finalScore">0</span>
+            </div>
+            <button class="game-btn" onclick="restartGame()">Tekrar Oyna</button>
+        </div>
     </div>
 
-    <div class="touch-pad" id="touchPad" aria-hidden="false">
-      <button class="btn-up" data-dir="up" aria-label="Yukarı">▲</button>
-      <button class="btn-left" data-dir="left" aria-label="Sol">◄</button>
-      <button class="btn-down" data-dir="down" aria-label="Aşağı">▼</button>
-      <button class="btn-right" data-dir="right" aria-label="Sağ">►</button>
-    </div>
-  </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas boyutlarını ayarla
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth - 40; // padding için
+            canvas.width = containerWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-  <div class="footer-hint">Swipe veya ok tuşları ile yönlendir. Ekranın altındaki butonlar mobil için.</div>
-</div>
+        // Oyun değişkenleri
+        let snake = [{x: 200, y: 200}];
+        let direction = {x: 0, y: 0};
+        let food = {};
+        let bonusFood = null;
+        let speedBoost = null;
+        let score = 0;
+        let bonusCount = 0;
+        let speedCount = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0;
+        let gameRunning = false;
+        let gamePaused = false;
+        let gameLoop;
+        let gameSpeed = 250; // Başlangıç hızı (ms)
+        let wrapAround = false;
+        let bonusTimer = 0;
+        let speedTimer = 0;
 
-<script>
-(() => {
-  // DOM
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  const scoreChip = document.getElementById('scoreChip');
-  const highChip = document.getElementById('highChip');
-  const overlay = document.getElementById('overlay');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const restartBtn = document.getElementById('restartBtn');
-  const touchPad = document.getElementById('touchPad');
-  const themeSelect = document.getElementById('themeSelect');
-  const diffSelect = document.getElementById('diffSelect');
-  const wrapToggle = document.getElementById('wrapToggle');
+        // Grid boyutu
+        const gridSize = 20;
 
-  // WebAudio helpers (no files)
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-  function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
-  function playClick(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='square'; o.frequency.value = 900; g.gain.value = 0.06; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.05);}catch(e){}}
-  function playPop(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(520,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(260,audioCtx.currentTime+0.14); g.gain.setValueAtTime(0.08,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.15); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.16);}catch(e){}}
-  function playFail(){ try{ ensureAudio(); const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(160,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(70,audioCtx.currentTime+0.4); g.gain.setValueAtTime(0.12,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.45); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.46);}catch(e){}}
+        // Yüksek skoru göster
+        document.getElementById('highScore').textContent = highScore;
 
-  // Themes & difficulties
-  const themes = {
-    night: { bg1:'#0f1724', bg2:'#071426', snakeA:'#7b61ff', snakeB:'#00e6a8', apple1:'#ff7a64', apple2:'#ff5040' },
-    neon:  { bg1:'#020617', bg2:'#06152a', snakeA:'#00ffb3', snakeB:'#ff00fb', apple1:'#fff000', apple2:'#ff5500' },
-    pastel:{ bg1:'#f6f8ff', bg2:'#eaf1ff', snakeA:'#9bb4ff', snakeB:'#a6ffc8', apple1:'#ff9bb3', apple2:'#ff6f91' }
-  };
-  const difficulties = {
-    easy: { baseSpeed:5, inc:0.18, initialLength:5 },
-    normal:{ baseSpeed:8, inc:0.3, initialLength:4 },
-    hard: { baseSpeed:12, inc:0.45, initialLength:3 }
-  };
+        // Rastgele yiyecek konumu oluştur
+        function generateFood() {
+            const maxX = Math.floor(canvas.width / gridSize) - 1;
+            const maxY = Math.floor(canvas.height / gridSize) - 1;
+            
+            food = {
+                x: Math.floor(Math.random() * maxX) * gridSize,
+                y: Math.floor(Math.random() * maxY) * gridSize
+            };
+            
+            // Yiyeceğin yılan üzerinde olmamasını sağla
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    generateFood();
+                    return;
+                }
+            }
+        }
 
-  // State
-  const gridCols = 24, gridRows = 24;
-  let deviceRatio = window.devicePixelRatio || 1;
-  let grid = { cols:gridCols, rows:gridRows, cell: Math.floor(canvas.width / gridCols), width:0, height:0 };
-  let snake = [], dir = {x:1,y:0}, nextDir = null, apple = null;
-  let score = 0, high = parseInt(localStorage.getItem('modernSnakeHigh')||'0',10);
-  let speed = difficulties.normal.baseSpeed, speedInc = difficulties.normal.inc, moveInterval = 1000/speed;
-  let running = true, last = 0, acc = 0, gameOver = false;
-  let wrapEnabled = true;
-  let currentTheme = 'neon';
+        // Bonus yiyecek oluştur
+        function generateBonusFood() {
+            if (bonusFood || Math.random() > 0.3) return; // %30 şans
+            
+            const maxX = Math.floor(canvas.width / gridSize) - 1;
+            const maxY = Math.floor(canvas.height / gridSize) - 1;
+            
+            bonusFood = {
+                x: Math.floor(Math.random() * maxX) * gridSize,
+                y: Math.floor(Math.random() * maxY) * gridSize,
+                timer: 150 // 15 saniye (100ms * 150)
+            };
+            
+            // Bonus yiyeceğin yılan veya normal yiyecek üzerinde olmamasını sağla
+            for (let segment of snake) {
+                if (segment.x === bonusFood.x && segment.y === bonusFood.y) {
+                    bonusFood = null;
+                    return;
+                }
+            }
+            if (bonusFood.x === food.x && bonusFood.y === food.y) {
+                bonusFood = null;
+                return;
+            }
+        }
 
-  highChip.textContent = 'En Yüksek: ' + high;
+        // Hız objesi oluştur
+        function generateSpeedBoost() {
+            if (speedBoost || Math.random() > 0.2) return; // %20 şans
+            
+            const maxX = Math.floor(canvas.width / gridSize) - 1;
+            const maxY = Math.floor(canvas.height / gridSize) - 1;
+            
+            speedBoost = {
+                x: Math.floor(Math.random() * maxX) * gridSize,
+                y: Math.floor(Math.random() * maxY) * gridSize,
+                timer: 100 // 10 saniye
+            };
+            
+            // Hız objesinin diğer objeler üzerinde olmamasını sağla
+            for (let segment of snake) {
+                if (segment.x === speedBoost.x && segment.y === speedBoost.y) {
+                    speedBoost = null;
+                    return;
+                }
+            }
+            if ((speedBoost.x === food.x && speedBoost.y === food.y) || 
+                (bonusFood && speedBoost.x === bonusFood.x && speedBoost.y === bonusFood.y)) {
+                speedBoost = null;
+                return;
+            }
+        }
 
-  function resizeCanvas(){
-    const maxW = Math.min(window.innerWidth - 48, window.innerHeight*0.9);
-    const size = Math.max(280, Math.min(800, Math.floor(maxW)));
-    canvas.style.width = size+'px'; canvas.style.height = size+'px';
-    deviceRatio = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(size * deviceRatio);
-    canvas.height = Math.floor(size * deviceRatio);
-    ctx.setTransform(deviceRatio,0,0,deviceRatio,0,0);
-    grid.cell = Math.floor(size / grid.cols);
-    grid.width = grid.cell * grid.cols;
-    grid.height = grid.cell * grid.rows;
-    canvas.style.width = grid.width + 'px';
-    canvas.style.height = grid.height + 'px';
-    draw();
-  }
-  window.addEventListener('resize', resizeCanvas);
+        // Oyunu çiz
+        function draw() {
+            // Arka planı temizle
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+            // Grid çiz (opsiyonel)
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < canvas.width; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
 
-  function placeApple(){
-    let tries=0;
-    while(tries++ < 2000){
-      const x = rnd(0,grid.cols-1), y = rnd(0,grid.rows-1);
-      if(!snake.some(p => p.x===x && p.y===y)){ apple={x,y}; return; }
-    }
-    apple = {x:0,y:0};
-  }
+            // Yılanı çiz
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    // Baş
+                    ctx.fillStyle = '#4ecdc4';
+                    ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+                    ctx.fillStyle = '#45b7aa';
+                    ctx.fillRect(segment.x + 2, segment.y + 2, gridSize - 4, gridSize - 4);
+                    
+                    // Gözler
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(segment.x + 5, segment.y + 5, 3, 3);
+                    ctx.fillRect(segment.x + 12, segment.y + 5, 3, 3);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(segment.x + 6, segment.y + 6, 1, 1);
+                    ctx.fillRect(segment.x + 13, segment.y + 6, 1, 1);
+                } else {
+                    // Vücut
+                    ctx.fillStyle = '#96ceb4';
+                    ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
+                    ctx.fillStyle = '#85c1a5';
+                    ctx.fillRect(segment.x + 2, segment.y + 2, gridSize - 4, gridSize - 4);
+                }
+            });
 
-  function resetGame(){
-    snake = [];
-    const sx = Math.floor(grid.cols/2), sy = Math.floor(grid.rows/2);
-    const d = difficulties[diffSelect.value] || difficulties.normal;
-    speed = d.baseSpeed; speedInc = d.inc;
-    const initLen = d.initialLength;
-    for(let i=0;i<initLen;i++) snake.push({x: sx-i, y: sy});
-    dir = {x:1,y:0}; nextDir = null;
-    score = 0; moveInterval = 1000/speed; running = true; gameOver=false;
-    placeApple(); scoreChip.textContent = 'Puan: ' + score;
-    updateTheme(themeSelect.value);
-    startLoop();
-  }
+            // Normal yiyeceği çiz
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillRect(food.x, food.y, gridSize, gridSize);
+            ctx.fillStyle = '#ee5a24';
+            ctx.fillRect(food.x + 2, food.y + 2, gridSize - 4, gridSize - 4);
+            
+            // Elma detayları
+            ctx.fillStyle = '#27ae60';
+            ctx.fillRect(food.x + 8, food.y - 2, 4, 4);
 
-  function updateTheme(t){
-    currentTheme = t;
-    const th = themes[t];
-    document.documentElement.style.setProperty('--bg-1', th.bg1);
-    document.documentElement.style.setProperty('--bg-2', th.bg2);
-    document.documentElement.style.setProperty('--accent-a', th.snakeA);
-    document.documentElement.style.setProperty('--accent-b', th.snakeB);
-    draw();
-  }
+            // Bonus yiyeceği çiz
+            if (bonusFood) {
+                ctx.fillStyle = '#9b59b6';
+                ctx.fillRect(bonusFood.x, bonusFood.y, gridSize, gridSize);
+                ctx.fillStyle = '#8e44ad';
+                ctx.fillRect(bonusFood.x + 2, bonusFood.y + 2, gridSize - 4, gridSize - 4);
+                
+                // Üzüm detayları
+                ctx.fillStyle = '#27ae60';
+                ctx.fillRect(bonusFood.x + 8, bonusFood.y - 2, 4, 4);
+                
+                // Yanıp sönme efekti
+                if (bonusFood.timer < 50 && Math.floor(bonusFood.timer / 5) % 2) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.fillRect(bonusFood.x, bonusFood.y, gridSize, gridSize);
+                }
+            }
 
-  // Drawing
-  function drawGrid(){
-    const c = ctx;
-    c.clearRect(0,0,grid.width,grid.height);
-    const th = themes[currentTheme];
-    const g = c.createLinearGradient(0,0,0,grid.height);
-    g.addColorStop(0, th.bg1);
-    g.addColorStop(1, th.bg2);
-    c.fillStyle = g;
-    roundRect(c, 0, 0, grid.width, grid.height, 12); c.fill();
+            // Hız objesini çiz
+            if (speedBoost) {
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(speedBoost.x, speedBoost.y, gridSize, gridSize);
+                ctx.fillStyle = '#f39c12';
+                ctx.fillRect(speedBoost.x + 2, speedBoost.y + 2, gridSize - 4, gridSize - 4);
+                
+                // Şimşek efekti
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(speedBoost.x + 6, speedBoost.y + 4, 8, 2);
+                ctx.fillRect(speedBoost.x + 8, speedBoost.y + 2, 4, 6);
+                ctx.fillRect(speedBoost.x + 6, speedBoost.y + 10, 8, 2);
+                
+                // Yanıp sönme efekti
+                if (speedBoost.timer < 30 && Math.floor(speedBoost.timer / 3) % 2) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.fillRect(speedBoost.x, speedBoost.y, gridSize, gridSize);
+                }
+            }
+        }
 
-    // faint grid lines
-    c.strokeStyle = 'rgba(255,255,255,0.02)';
-    c.lineWidth = 1;
-    for(let x=0;x<=grid.width;x+=grid.cell){ c.beginPath(); c.moveTo(x+0.5,0); c.lineTo(x+0.5,grid.height); c.stroke(); }
-    for(let y=0;y<=grid.height;y+=grid.cell){ c.beginPath(); c.moveTo(0,y+0.5); c.lineTo(grid.width,y+0.5); c.stroke(); }
-  }
+        // Oyunu güncelle
+        function update() {
+            if (!gameRunning || gamePaused) return;
 
-  function drawApple(){
-    if(!apple) return;
-    const s = grid.cell;
-    const x = apple.x * s, y = apple.y * s;
-    const cx = x + s/2, cy = y + s/2, r = s*0.36;
-    const th = themes[currentTheme];
-    const g = ctx.createRadialGradient(cx,cy,r*0.1,cx,cy,r*1.2);
-    g.addColorStop(0, th.apple1); g.addColorStop(1, th.apple2);
-    ctx.fillStyle = g; circle(ctx, cx, cy, r); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'; circle(ctx, cx - r*0.35, cy - r*0.35, r*0.12); ctx.fill();
-  }
+            // Eğer henüz hareket başlamamışsa güncelleme yapma
+            if (direction.x === 0 && direction.y === 0) return;
 
-  function drawSnake(){
-    if(!snake.length) return;
-    const s = grid.cell;
-    for(let i=snake.length-1;i>=0;i--){
-      const p = snake[i];
-      const px = p.x * s, py = p.y * s;
-      const t = 1 - (i / snake.length);
-      const color = lerpColor(themes[currentTheme].snakeA, themes[currentTheme].snakeB, t);
-      roundRect(ctx, px+2, py+2, s-4, s-4, 6);
-      ctx.fillStyle = color; ctx.fill();
-    }
-    // head sheen
-    const head = snake[0];
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    circle(ctx, head.x*s + s/2 - s*0.08, head.y*s + s/2 - s*0.18, s*0.12); ctx.fill();
-  }
+            let head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
 
-  function drawGlow(){
-    const g = ctx.createRadialGradient(0,0,30, grid.width*0.6, grid.height*0.4, Math.max(grid.width,grid.height));
-    g.addColorStop(0, hexToRgba(themes[currentTheme].snakeB, 0.06));
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(0,0,grid.width,grid.height);
-  }
+            // Wrap-around kontrolü
+            if (wrapAround) {
+                if (head.x < 0) head.x = canvas.width - gridSize;
+                if (head.x >= canvas.width) head.x = 0;
+                if (head.y < 0) head.y = canvas.height - gridSize;
+                if (head.y >= canvas.height) head.y = 0;
+            } else {
+                // Normal duvar kontrolü
+                if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                    gameOver();
+                    return;
+                }
+            }
 
-  function draw(){
-    drawGrid(); drawApple(); drawSnake(); drawGlow();
-  }
+            // Kendine çarpma kontrolü
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    gameOver();
+                    return;
+                }
+            }
 
-  // helpers
-  function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
-  function circle(c,x,y,r){ c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.closePath(); }
-  function lerpColor(a,b,t){ const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16); const ar=(pa>>16)&255,ag=(pa>>8)&255,ab=pa&255; const br=(pb>>16)&255,bg=(pb>>8)&255,bb=pb&255; const rr=Math.round(ar+(br-ar)*t), rg=Math.round(ag+(bg-ag)*t), rb=Math.round(ab+(bb-ab)*t); return `rgb(${rr},${rg},${rb})`; }
-  function hexToRgba(hex, a){ if(hex.startsWith('#')) hex = hex.slice(1); if(hex.length===3) hex = hex.split('').map(c=>c+c).join(''); const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+            snake.unshift(head);
 
-  // game logic
-  function step(){
-    if(gameOver || !running) return;
-    if(nextDir){ if(!(nextDir.x === -dir.x && nextDir.y === -dir.y)) dir = nextDir; nextDir = null; }
-    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-    if(wrapToggle.checked){
-      if(head.x < 0) head.x = grid.cols - 1;
-      if(head.x >= grid.cols) head.x = 0;
-      if(head.y < 0) head.y = grid.rows - 1;
-      if(head.y >= grid.rows) head.y = 0;
-    } else {
-      if(head.x < 0 || head.x >= grid.cols || head.y < 0 || head.y >= grid.rows){ return endGame(); }
-    }
-    if(snake.some(p => p.x === head.x && p.y === head.y)) return endGame();
-    snake.unshift(head);
-    if(apple && head.x === apple.x && head.y === apple.y){
-      score += 10; playPop();
-      speed = Math.min(60, speed + speedInc);
-      moveInterval = 1000 / speed;
-      placeApple();
-      scoreChip.textContent = 'Puan: ' + score;
-      if(score > high){ high = score; localStorage.setItem('modernSnakeHigh', String(high)); highChip.textContent = 'En Yüksek: ' + high; }
-    } else {
-      snake.pop();
-    }
-  }
+            let ateFood = false;
 
-  function endGame(){
-    gameOver = true; running = false; playFail();
-    updateOverlay(`<div class="msg"><h3>Oyun Bitti</h3><p>Puanın: ${score}</p><div style="display:flex;gap:8px;justify-content:center;margin-top:10px;"><button class="btn" id="overlayRestart">Tekrar Oyna</button></div></div>`);
-    setTimeout(()=>{ const r=document.getElementById('overlayRestart'); if(r) r.addEventListener('click', ()=>{ resetGame(); startLoop(); updateOverlay(''); }); },10);
-  }
+            // Normal yiyecek yeme kontrolü
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+                generateFood();
+                generateBonusFood(); // Bonus yiyecek şansı
+                generateSpeedBoost(); // Hız objesi şansı
+                ateFood = true;
+                
+                // Her 50 puanda hızı artır
+                if (score % 50 === 0 && score > 0) {
+                    gameSpeed = Math.max(80, gameSpeed - 20);
+                    clearInterval(gameLoop);
+                    gameLoop = setInterval(gameStep, gameSpeed);
+                }
+            }
 
-  function updateOverlay(html){ overlay.innerHTML = html || ''; }
+            // Bonus yiyecek yeme kontrolü
+            if (bonusFood && head.x === bonusFood.x && head.y === bonusFood.y) {
+                score += 25;
+                bonusCount++;
+                document.getElementById('score').textContent = score;
+                document.getElementById('bonusCount').textContent = bonusCount;
+                bonusFood = null;
+                ateFood = true;
+            }
 
-  // loop
-  function loop(ts){
-    if(!last) last = ts;
-    const delta = ts - last; last = ts; acc += delta;
-    while(acc >= moveInterval){ step(); acc -= moveInterval; }
-    draw();
-    if(!gameOver && running) requestAnimationFrame(loop);
-  }
-  function startLoop(){ last = 0; acc = 0; if(!gameOver) requestAnimationFrame(loop); running = true; }
+            // Hız objesi alma kontrolü
+            if (speedBoost && head.x === speedBoost.x && head.y === speedBoost.y) {
+                speedCount++;
+                document.getElementById('speedCount').textContent = speedCount;
+                speedBoost = null;
+                
+                // Geçici hız artışı (5 saniye)
+                const oldSpeed = gameSpeed;
+                gameSpeed = Math.max(50, gameSpeed - 50);
+                clearInterval(gameLoop);
+                gameLoop = setInterval(gameStep, gameSpeed);
+                
+                setTimeout(() => {
+                    if (gameRunning) {
+                        gameSpeed = oldSpeed;
+                        clearInterval(gameLoop);
+                        gameLoop = setInterval(gameStep, gameSpeed);
+                    }
+                }, 5000);
+            }
 
-  // input: keyboard (arrow keys)
-  window.addEventListener('keydown', e=>{
-    if(gameOver) return;
-    if(e.repeat) return;
-    const k = e.key;
-    if(k === 'ArrowUp' || k === 'w'){ nextDir = {x:0,y:-1}; playClick(); }
-    if(k === 'ArrowDown' || k === 's'){ nextDir = {x:0,y:1}; playClick(); }
-    if(k === 'ArrowLeft' || k === 'a'){ nextDir = {x:-1,y:0}; playClick(); }
-    if(k === 'ArrowRight' || k === 'd'){ nextDir = {x:1,y:0}; playClick(); }
-    if(k === ' '){ togglePause(); }
-  });
+            // Bonus objeler için zamanlayıcı
+            if (bonusFood) {
+                bonusFood.timer--;
+                if (bonusFood.timer <= 0) {
+                    bonusFood = null;
+                }
+            }
 
-  // touch swipe detection on canvas
-  let touchStart = null, touchId = null;
-  const swipeThreshold = 20;
-  canvas.addEventListener('touchstart', ev => {
-    const t = ev.changedTouches[0];
-    touchStart = { x: t.clientX, y: t.clientY, time: Date.now() };
-    touchId = t.identifier;
-  }, { passive:true });
-  canvas.addEventListener('touchmove', ev => { ev.preventDefault(); }, { passive:false });
-  canvas.addEventListener('touchend', ev => {
-    const t = Array.from(ev.changedTouches).find(tt=>tt.identifier===touchId) || ev.changedTouches[0];
-    if(!t || !touchStart) return;
-    const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
-    if(Math.abs(dx) < swipeThreshold && Math.abs(dy) < swipeThreshold){
-      togglePause();
-    } else {
-      if(Math.abs(dx) > Math.abs(dy)){
-        setDir(dx>0 ? {x:1,y:0} : {x:-1,y:0});
-      } else {
-        setDir(dy>0 ? {x:0,y:1} : {x:0,y:-1});
-      }
-    }
-    touchStart = null; touchId = null;
-  }, { passive:true });
+            if (speedBoost) {
+                speedBoost.timer--;
+                if (speedBoost.timer <= 0) {
+                    speedBoost = null;
+                }
+            }
 
-  function setDir(d){ if(d.x === -dir.x && d.y === -dir.y) return; nextDir = d; }
+            if (!ateFood) {
+                snake.pop();
+            }
+        }
 
-  // on-screen buttons (touch / mouse)
-  touchPad.addEventListener('pointerdown', e=>{
-    const btn = e.target.closest('button[data-dir]');
-    if(!btn) return;
-    const d = btn.dataset.dir;
-    if(d === 'up') setDir({x:0,y:-1});
-    if(d === 'down') setDir({x:0,y:1});
-    if(d === 'left') setDir({x:-1,y:0});
-    if(d === 'right') setDir({x:1,y:0});
-    try{ btn.setPointerCapture(e.pointerId); btn.addEventListener('pointerup', ()=>{ try{btn.releasePointerCapture(e.pointerId);}catch(_){} }, { once:true }); }catch(e){}
-    playClick();
-  });
+        // Oyun döngüsü
+        function gameStep() {
+            update();
+            draw();
+        }
 
-  // UI
-  pauseBtn.addEventListener('click', ()=>{ playClick(); togglePause(); });
-  restartBtn.addEventListener('click', ()=>{ playClick(); resetGame(); startLoop(); updateOverlay(''); pauseBtn.textContent='Duraklat'; });
+        // Yön değiştir
+        function changeDirection(newDirection) {
+            if (!gameRunning) return;
 
-  themeSelect.addEventListener('change', (e)=>{ playClick(); updateTheme(e.target.value); });
-  diffSelect.addEventListener('change', (e)=>{ playClick(); resetGame(); });
-  wrapToggle.addEventListener('change', ()=>{ playClick(); });
+            const directions = {
+                'up': {x: 0, y: -gridSize},
+                'down': {x: 0, y: gridSize},
+                'left': {x: -gridSize, y: 0},
+                'right': {x: gridSize, y: 0}
+            };
 
-  function togglePause(){ if(gameOver) return; running = !running; pauseBtn.textContent = running ? 'Duraklat' : 'Devam Et'; if(running) { last = 0; requestAnimationFrame(loop); updateOverlay(''); } else { updateOverlay(`<div class="msg"><h4>Duraklatıldı</h4><p>Devam etmek için butona bas veya ekrana dokun.</p></div>`); } }
+            const newDir = directions[newDirection];
+            
+            // Ters yöne gitmeyi engelle (sadece hareket halindeyken)
+            if (direction.x !== 0 || direction.y !== 0) {
+                if (newDir.x === -direction.x && newDir.y === -direction.y) return;
+            }
+            
+            direction = newDir;
+        }
 
-  // init helpers
-  function resetIntervalFromSpeed(){ moveInterval = 1000 / speed; }
+        // Klavye kontrolleri
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                    e.preventDefault();
+                    changeDirection('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    changeDirection('down');
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    changeDirection('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    changeDirection('right');
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    togglePause();
+                    break;
+            }
+        });
 
-  // init
-  function init(){
-    resizeCanvas();
-    updateTheme(themeSelect.value);
-    resetGame();
-    startLoop();
-  }
+        // Gelişmiş Touch/Swipe kontrolleri
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        let lastSwipeTime = 0;
 
-  // expose for debugging
-  window.ModernSnake = { resetGame, step };
+        // Canvas için touch kontrolleri
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        });
 
-  // Start
-  init();
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Sayfa kaydırmasını engelle
+        });
 
-})();
-</script>
-</body>
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!gameRunning) return;
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndTime = Date.now();
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const deltaTime = touchEndTime - touchStartTime;
+            
+            // Çok hızlı swipe'ları engelle (spam önleme)
+            if (touchEndTime - lastSwipeTime < 150) return;
+            
+            const minSwipeDistance = 25; // Daha hassas
+            const maxSwipeTime = 500; // Maksimum swipe süresi
+            
+            // Swipe geçerli mi kontrol et
+            if (deltaTime > maxSwipeTime) return;
+            
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+            
+            if (absX > minSwipeDistance || absY > minSwipeDistance) {
+                lastSwipeTime = touchEndTime;
+                
+                if (absX > absY) {
+                    // Yatay hareket
+                    if (deltaX > 0) {
+                        changeDirection('right');
+                    } else {
+                        changeDirection('left');
+                    }
+                } else {
+                    // Dikey hareket
+                    if (deltaY > 0) {
+                        changeDirection('down');
+                    } else {
+                        changeDirection('up');
+                    }
+                }
+            }
+        });
+
+        // Tüm sayfa için swipe desteği
+        document.addEventListener('touchstart', (e) => {
+            if (e.target === canvas) return; // Canvas kendi handler'ını kullanır
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (e.target === canvas || !gameRunning) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndTime = Date.now();
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const deltaTime = touchEndTime - touchStartTime;
+            
+            if (touchEndTime - lastSwipeTime < 150 || deltaTime > 500) return;
+            
+            const minSwipeDistance = 30;
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+            
+            if (absX > minSwipeDistance || absY > minSwipeDistance) {
+                lastSwipeTime = touchEndTime;
+                
+                if (absX > absY) {
+                    changeDirection(deltaX > 0 ? 'right' : 'left');
+                } else {
+                    changeDirection(deltaY > 0 ? 'down' : 'up');
+                }
+            }
+        });
+
+        // Wrap-around ayarını değiştir
+        function toggleWrapAround() {
+            wrapAround = !wrapAround;
+            const toggle = document.getElementById('wrapToggle');
+            if (wrapAround) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        // Oyunu başlat
+        function startGame() {
+            if (gameRunning) return;
+            
+            gameRunning = true;
+            gamePaused = false;
+            snake = [{x: Math.floor(canvas.width/2/gridSize)*gridSize, y: Math.floor(canvas.height/2/gridSize)*gridSize}];
+            direction = {x: 0, y: 0}; // Başlangıçta hareket etmesin
+            score = 0;
+            bonusCount = 0;
+            speedCount = 0;
+            bonusFood = null;
+            speedBoost = null;
+            gameSpeed = 250; // Hızı başlangıç değerine sıfırla
+            document.getElementById('score').textContent = score;
+            document.getElementById('bonusCount').textContent = bonusCount;
+            document.getElementById('speedCount').textContent = speedCount;
+            generateFood();
+            draw(); // İlk çizimi yap
+            
+            // Oyun döngüsünü başlat ama hareket etmesin
+            gameLoop = setInterval(gameStep, gameSpeed);
+        }
+
+        // Oyunu duraklat/devam ettir
+        function togglePause() {
+            if (!gameRunning) return;
+            
+            gamePaused = !gamePaused;
+            document.querySelector('.pause').textContent = gamePaused ? 'Devam' : 'Duraklat';
+        }
+
+        // Oyunu sıfırla
+        function resetGame() {
+            gameRunning = false;
+            gamePaused = false;
+            clearInterval(gameLoop);
+            document.querySelector('.pause').textContent = 'Duraklat';
+            
+            snake = [{x: Math.floor(canvas.width/2/gridSize)*gridSize, y: Math.floor(canvas.height/2/gridSize)*gridSize}];
+            direction = {x: 0, y: 0};
+            score = 0;
+            bonusCount = 0;
+            speedCount = 0;
+            bonusFood = null;
+            speedBoost = null;
+            gameSpeed = 250; // Hızı başlangıç değerine sıfırla
+            document.getElementById('score').textContent = score;
+            document.getElementById('bonusCount').textContent = bonusCount;
+            document.getElementById('speedCount').textContent = speedCount;
+            generateFood();
+            draw();
+        }
+
+        // Oyun bitti
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            
+            // Yüksek skor kontrolü
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snakeHighScore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'flex';
+        }
+
+        // Oyunu yeniden başlat
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            resetGame();
+            startGame();
+        }
+
+        // İlk çizim
+        generateFood();
+        draw();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96e7b3aca47e7807',t:'MTc1NTA4Mjc1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
